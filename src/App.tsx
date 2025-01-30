@@ -3,7 +3,6 @@ import "./App.css";
 import { TodoProvider } from "./context/TodoContext";
 import Home from "./pages/Home";
 import TodoListDetails from "./pages/TodoListDetails";
-import './styles/tailwind.css';
 
 function App() {
   return (
