@@ -38,19 +38,6 @@ const Home = () => {
             <div className="p-4 bg-gray-100 font-bold text-lg">{list.name}</div>
             <div className="p-4">
               <p className="text-gray-700">Manage your tasks efficiently</p>
-              <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
-                <div
-                  className="bg-teal-500 h-2.5 rounded-full"
-                  style={{ width: "70%" }} // Set the width dynamically based on your progress (e.g., task completion)
-                ></div>
-              </div>
-
-              {/* Progress Percentage */}
-              <div className="flex justify-between text-sm text-teal-600">
-                <span>0%</span>
-                <span>70%</span>{" "}
-                {/* Change this value based on your progress */}
-              </div>
             </div>
             <div className="p-4 flex justify-between bg-gray-50">
               <Link
