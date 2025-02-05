@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { Form } from "../components/Form";
 import { TodoItem } from "../types";
 import { useEffect, useState } from "react";
-import moment from "moment";
+import { dateFormat } from "../utils/helpers";
 
 const TodoListDetails = () => {
   const [filter, setFilter] = useState<"all" | "active" | "completed">("all");
@@ -39,13 +39,13 @@ const TodoListDetails = () => {
     if (!id) return;
 
     const newTodo: TodoItem = {
-      id: crypto.randomUUID(),
       ...todo,
+      id: crypto.randomUUID(),
       isCompleted: false,
       listId: id,
     };
 
-    setTasks((prevTasks) => [...prevTasks, newTodo]);
+    // setTasks((prevTasks) => [...prevTasks, newTodo]);
     addTodoItem(id, newTodo);
   };
 
@@ -68,19 +68,24 @@ const TodoListDetails = () => {
   };
 
   const handleSaveDescription = (listId: string, itemId: string) => {
-    const item = tasks.find((task) => task.id === itemId);
-    editTodoListItem(listId, itemId, {
-      ...item,
-      description: editedDescription || "",
-    } as TodoItem);
+    const updatedTasks = tasks.map((task) =>
+      task.id === itemId
+        ? { ...task, description: editedDescription || "" }
+        : task,
+    );
 
-    if (list) {
-      list.items = list.items.map((item) =>
-        item.id === itemId ? { ...item, description: editedDescription } : item,
-      );
+    setTasks(updatedTasks);
+
+    const item = tasks.find((task) => task.id === itemId);
+    if (item) {
+      editTodoListItem(listId, itemId, {
+        ...item,
+        description: editedDescription,
+      });
     }
 
-    setEditingId(null); // Exit edit mode
+    // Exit editing mode
+    setEditingId(null);
   };
   const handleFilterChange = (newFilter: "all" | "active" | "completed") => {
     setFilter(newFilter);
@@ -88,10 +93,6 @@ const TodoListDetails = () => {
 
   const completedTasks = tasks.filter((task) => task.isCompleted).length;
   const progress = tasks.length > 0 ? (completedTasks / tasks.length) * 100 : 0;
-
-  const dateFormat = (dateString: string) => {
-    return moment(dateString).format("MMMM Do YYYY, h:mm a");
-  };
 
   if (!list) return <div>List not found</div>;
 

@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { TodoItem, TodoList } from "../types";
 import {
   createItem,
+  createList,
   deleteItem,
   fetchListItems,
   fetchLists,
@@ -16,7 +17,7 @@ interface TodoContextType {
   editTodoListItem: (listId: string, itemId: string, item: TodoItem) => void;
   addTodoList: (name: string) => void;
   removeTodoList: (id: string) => void;
-  addTodoItem: (listId: string, item: Omit<TodoItem, "id">) => void;
+  addTodoItem: (listId: string, item: TodoItem) => void;
   toggleTodoItem: (listId: string, itemId: string) => void;
   deleteTodoItem: (listId: string, itemId: string) => void;
 }
@@ -26,7 +27,7 @@ const TodoContext = createContext<TodoContextType | undefined>(undefined);
 export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
   const [todoLists, setTodoLists] = useState<TodoList[]>([]);
 
-  // Load lists data from API or local storage
+  // Load lists data from API
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -49,14 +50,14 @@ export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
   const setListItems = async (list: TodoList) => {
     try {
       const response = await fetchListItems(list.id);
-      return { ...list, items: response.data };
+      return { ...list, items: response.data ? response.data : [] };
     } catch (error) {
-      console.error("Error fetching todos:", error);
+      console.log("Error fetching todos:", error);
       return { ...list, items: [] }; // Return empty items on failure
     }
   };
 
-  // Save data to API or local storage (mocked with `console.log`)
+  // Save data to API
   const saveData = (newData: TodoList[]) => {
     setTodoLists(newData);
   };
@@ -64,6 +65,7 @@ export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
   // Add new ToDo List
   const addTodoList = (name: string) => {
     const newList: TodoList = { id: uuidv4(), name, items: [] };
+    createList(newList);
     saveData([...todoLists, newList]);
   };
 
@@ -87,16 +89,13 @@ export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   // Add new ToDo Item
-  const addTodoItem = (listId: string, item: Omit<TodoItem, "id">) => {
+  const addTodoItem = (listId: string, item: TodoItem) => {
     createItem(listId, item);
     const updatedLists = todoLists.map((list) =>
       list.id === listId
         ? {
             ...list,
-            items: [
-              ...list.items,
-              { id: uuidv4(), ...item, isCompleted: false },
-            ],
+            items: [...list.items, { ...item, isCompleted: false }],
           }
         : list,
     );

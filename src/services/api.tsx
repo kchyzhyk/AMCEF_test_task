@@ -10,8 +10,9 @@ export const fetchLists = () => api.get("/lists");
 export const fetchListItems = (listId: string) =>
   api.get(`/lists/${listId}/items`);
 export const deleteList = (listId: string) => api.delete(`/lists/${listId}`);
-export const createItem = (listId: string, data: Omit<TodoItem, "id">) =>
+export const createItem = (listId: string, data: TodoItem) =>
   api.post(`/lists/${listId}/items`, data);
+export const createList = (data: Partial<TodoList>) => api.post(`/lists`, data);
 export const deleteItem = (listId: string, itemId: string) =>
   api.delete(`/lists/${listId}/items/${itemId}`);
 export const updateList = (listId: string, updates: Partial<TodoList>) =>

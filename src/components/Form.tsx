@@ -87,11 +87,6 @@ export const Form = ({
                     placeholder="Description"
                     className="w-full p-2 border rounded"
                   />
-                  {/* {errors.description && (
-                    <p className="text-red-500 text-sm">
-                      {errors.description.message}
-                    </p>
-                  )} */}
                 </div>
 
                 <div>
@@ -99,6 +94,7 @@ export const Form = ({
                     {...register("deadline")}
                     type="datetime-local"
                     className="w-full p-2 border rounded"
+                    min={new Date().toISOString().slice(0, 16)}
                   />
                   {errors.deadline && (
                     <p className="text-red-500 text-sm">
