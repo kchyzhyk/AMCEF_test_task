@@ -4,6 +4,7 @@ import {
   createItem,
   createList,
   deleteItem,
+  deleteList,
   fetchListItems,
   fetchLists,
   updateList,
@@ -83,11 +84,6 @@ export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
     updateListItem(listId, itemId, item);
   };
 
-  // Remove ToDo List
-  const removeTodoList = (id: string) => {
-    saveData(todoLists.filter((list) => list.id !== id));
-  };
-
   // Add new ToDo Item
   const addTodoItem = (listId: string, item: TodoItem) => {
     createItem(listId, item);
@@ -125,6 +121,14 @@ export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
       list.id === listId
         ? { ...list, items: list.items.filter((item) => item.id !== itemId) }
         : list,
+    );
+    saveData(updatedLists);
+  };
+
+  const removeTodoList = (listId: string) => {
+    deleteList(listId);
+    const updatedLists = todoLists.filter((list) =>
+      list.id != listId
     );
     saveData(updatedLists);
   };
