@@ -36,7 +36,7 @@ export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
         const lists = response.data;
 
         const updatedLists = await Promise.all(
-          lists.map(async (list: TodoList) => await setListItems(list)),
+          lists?.map(async (list: TodoList) => await setListItems(list)),
         );
 
         setTodoLists(updatedLists);
