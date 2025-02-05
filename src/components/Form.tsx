@@ -7,10 +7,8 @@ import { z } from "zod";
 // Define validation schema
 const todoSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
-  description: z
-    .string()
-    .min(5, { message: "Description must be at least 5 characters" }),
-  deadline: z.string().nonempty({ message: "Deadline is required" }),
+  description: z.string().min(0),
+  deadline: z.string(),
 });
 
 type TodoFormData = z.infer<typeof todoSchema>;
@@ -18,7 +16,11 @@ type TodoFormData = z.infer<typeof todoSchema>;
 export const Form = ({
   addTodo,
 }: {
-  addTodo: (todo: { title: string; description: string; deadline: string }) => void;
+  addTodo: (todo: {
+    title: string;
+    description: string;
+    deadline: string;
+  }) => void;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const {
@@ -43,7 +45,7 @@ export const Form = ({
         onClick={() => setIsOpen(true)}
         className="px-4 py-2 bg-blue-500 text-white rounded"
       >
-        + Add ToDo
+        ➕ Add ToDo
       </button>
 
       {/* Modal */}
@@ -53,7 +55,7 @@ export const Form = ({
           className="relative z-50"
           onClose={() => setIsOpen(false)}
         >
-          <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm" />
+          <div className="fixed inset-0 bg-opacity-30 backdrop-blur-sm" />
 
           <div className="fixed inset-0 flex items-center justify-center p-4">
             <Dialog.Panel className="w-full max-w-md bg-white p-6 rounded-lg shadow-lg">
@@ -85,11 +87,11 @@ export const Form = ({
                     placeholder="Description"
                     className="w-full p-2 border rounded"
                   />
-                  {errors.description && (
+                  {/* {errors.description && (
                     <p className="text-red-500 text-sm">
                       {errors.description.message}
                     </p>
-                  )}
+                  )} */}
                 </div>
 
                 <div>

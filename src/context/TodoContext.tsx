@@ -5,12 +5,15 @@ import {
   deleteItem,
   fetchListItems,
   fetchLists,
+  updateList,
+  updateListItem,
 } from "../services/api";
 import { v4 as uuidv4 } from "uuid";
 
 interface TodoContextType {
   todoLists: TodoList[];
-  todoListsItems: TodoItem[];
+  editTodoList: (listId: string, item: string) => void;
+  editTodoListItem: (listId: string, itemId: string, item: TodoItem) => void;
   addTodoList: (name: string) => void;
   removeTodoList: (id: string) => void;
   addTodoItem: (listId: string, item: Omit<TodoItem, "id">) => void;
@@ -22,14 +25,36 @@ const TodoContext = createContext<TodoContextType | undefined>(undefined);
 
 export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
   const [todoLists, setTodoLists] = useState<TodoList[]>([]);
-  // const [todoListsItems, setTodoListsItems] = useState<TodoItem[]>([]);
 
   // Load lists data from API or local storage
   useEffect(() => {
-    fetchLists()
-      .then((response) => setTodoLists(response.data))
-      .catch((error) => console.error("Error fetching todos:", error));
+    const fetchData = async () => {
+      try {
+        const response = await fetchLists();
+        const lists = response.data;
+
+        const updatedLists = await Promise.all(
+          lists.map(async (list: TodoList) => await setListItems(list)),
+        );
+
+        setTodoLists(updatedLists);
+      } catch (error) {
+        console.error("Error fetching todo lists:", error);
+      }
+    };
+
+    fetchData();
   }, []);
+
+  const setListItems = async (list: TodoList) => {
+    try {
+      const response = await fetchListItems(list.id);
+      return { ...list, items: response.data };
+    } catch (error) {
+      console.error("Error fetching todos:", error);
+      return { ...list, items: [] }; // Return empty items on failure
+    }
+  };
 
   // Save data to API or local storage (mocked with `console.log`)
   const saveData = (newData: TodoList[]) => {
@@ -40,6 +65,20 @@ export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
   const addTodoList = (name: string) => {
     const newList: TodoList = { id: uuidv4(), name, items: [] };
     saveData([...todoLists, newList]);
+  };
+
+  // Edit ToDo List
+  const editTodoList = (listId: string, name: string) => {
+    updateList(listId, { name });
+
+    const updatedLists = todoLists.map((list) =>
+      list.id === listId ? { ...list, name } : list,
+    );
+    saveData(updatedLists);
+  };
+
+  const editTodoListItem = (listId: string, itemId: string, item: TodoItem) => {
+    updateListItem(listId, itemId, item);
   };
 
   // Remove ToDo List
@@ -94,7 +133,9 @@ export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
     <TodoContext.Provider
       value={{
         todoLists,
+        editTodoListItem,
         addTodoList,
+        editTodoList,
         removeTodoList,
         addTodoItem,
         toggleTodoItem,

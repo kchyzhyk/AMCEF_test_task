@@ -1,5 +1,5 @@
 import axios from "axios";
-import { TodoItem } from "../types";
+import { TodoItem, TodoList } from "../types";
 const MOCKAPI_SECRET = import.meta.env.VITE_MOCKAPI_SECRET;
 
 const api = axios.create({
@@ -14,3 +14,13 @@ export const createItem = (listId: string, data: Omit<TodoItem, "id">) =>
   api.post(`/lists/${listId}/items`, data);
 export const deleteItem = (listId: string, itemId: string) =>
   api.delete(`/lists/${listId}/items/${itemId}`);
+export const updateList = (listId: string, updates: Partial<TodoList>) =>
+  api
+    .put(`/lists/${listId}`, updates)
+    .then((response) => console.log(response));
+
+export const updateListItem = (
+  listId: string,
+  itemId: string,
+  updates: TodoItem,
+) => api.put(`/lists/${listId}/items/${itemId}`, updates);

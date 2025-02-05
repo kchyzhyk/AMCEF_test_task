@@ -1,10 +1,26 @@
+import EditListModal from "../components/EditListModal";
+import TodoListComponent from "../components/TodoListComponent";
 import { useTodo } from "../context/TodoContext";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { TodoList } from "../types";
 
 const Home = () => {
-  const { todoLists, addTodoList, removeTodoList } = useTodo();
+  const { todoLists, addTodoList, removeTodoList, editTodoList } = useTodo();
   const [listName, setListName] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedList, setSelectedList] = useState<TodoList>();
+
+  const openModal = (list: TodoList) => {
+    setSelectedList(list);
+    setIsModalOpen(!isModalOpen);
+  };
+
+  const handleSave = (updatedName: string) => {
+    if (selectedList) {
+      editTodoList(selectedList.id, updatedName);
+      setIsModalOpen(false);
+    }
+  };
 
   return (
     <div className="flex flex-col py-5">
@@ -21,7 +37,11 @@ const Home = () => {
             className="border p-2 rounded-md"
           />
           <button
-            onClick={() => addTodoList(listName)}
+            onClick={() => {
+              if (!listName) return;
+              addTodoList(listName);
+              setListName("");
+            }}
             className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition"
           >
             Add List
@@ -30,32 +50,24 @@ const Home = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-        {todoLists.map((list) => (
-          <div
-            key={list.id}
-            className="w-80 border shadow-lg rounded-lg overflow-hidden"
-          >
-            <div className="p-4 bg-gray-100 font-bold text-lg">{list.name}</div>
-            <div className="p-4">
-              <p className="text-gray-700">Manage your tasks efficiently</p>
-            </div>
-            <div className="p-4 flex justify-between bg-gray-50">
-              <Link
-                to={`/lists/${list.id}`}
-                className="text-blue-500 hover:underline"
-              >
-                View List
-              </Link>
-              <button
-                onClick={() => removeTodoList(list.id)}
-                className="text-red-500 hover:text-red-700"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
+        {todoLists.map((list) => {
+          return (
+            <TodoListComponent
+              key={list.id}
+              list={list}
+              openModal={openModal}
+              removeTodoList={removeTodoList}
+            />
+          );
+        })}
       </div>
+
+      <EditListModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={handleSave}
+        listName={selectedList?.name || ""}
+      />
     </div>
   );
 };
