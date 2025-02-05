@@ -50,6 +50,10 @@ const TodoListDetails = () => {
   };
 
   const handleToggle = (taskId: string) => {
+    if (!id) {
+      console.error("List ID is not defined");
+      return; // Exit early if the id is not defined
+    }
     const updatedTasks = tasks.map((task) =>
       task.id === taskId ? { ...task, isCompleted: !task.isCompleted } : task,
     );
