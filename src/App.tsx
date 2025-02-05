@@ -4,10 +4,12 @@ import { TodoProvider } from "./context/TodoContext";
 import Home from "./pages/Home";
 import TodoListDetails from "./pages/TodoListDetails";
 
+const repoName = "/AMCEF_test_task";
+
 function App() {
   return (
     <TodoProvider>
-      <BrowserRouter>
+      <BrowserRouter basename={repoName}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/lists/:id" element={<TodoListDetails />} />
